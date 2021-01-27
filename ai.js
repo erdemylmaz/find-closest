@@ -1,4 +1,4 @@
-document.querySelector('body').style.backgroundColor = "#131313";
+document.querySelector("body").style.backgroundColor = "black";
 
 const HEIGHT = 500;
 const WIDTH = 750;
@@ -6,33 +6,51 @@ let squareScale = 50;
 
 carsPositionY = Math.random() * (HEIGHT - squareScale);
 carsPositionX = Math.random() * (WIDTH - squareScale);
-carsPosition = (carsPositionY - 25) + carsPositionX;
+carsPosition = carsPositionY - 25 + carsPositionX;
 
-let list = [{
+let boxs = [
+  {
     name: "0",
     positionX: Math.random() * (WIDTH - squareScale),
-    positionY: Math.random() * (HEIGHT - squareScale)
-},
-{
+    positionY: Math.random() * (HEIGHT - squareScale),
+    squareX: "",
+    squareY: "",
+    distance: "",
+  },
+  {
     name: "1",
     positionX: Math.random() * (WIDTH - squareScale),
-    positionY: Math.random() * (HEIGHT - squareScale)
-},
-{
+    positionY: Math.random() * (HEIGHT - squareScale),
+    squareX: "",
+    squareY: "",
+    distance: "",
+  },
+  {
     name: "2",
     positionX: Math.random() * (WIDTH - squareScale),
-    positionY: Math.random() * (HEIGHT - squareScale)
-},
-{
+    positionY: Math.random() * (HEIGHT - squareScale),
+    squareX: "",
+    squareY: "",
+    distance: "",
+  },
+  {
     name: "3",
     positionX: Math.random() * (WIDTH - squareScale),
-    positionY: Math.random() * (HEIGHT - squareScale)
-},
-{
+    positionY: Math.random() * (HEIGHT - squareScale),
+    squareX: "",
+    squareY: "",
+    distance: "",
+  },
+  {
     name: "4",
     positionX: Math.random() * (WIDTH - squareScale),
-    positionY: Math.random() * (HEIGHT - squareScale)
-}
+    positionY: Math.random() * (HEIGHT - squareScale),
+    distanceX: "",
+    distanceY: "",
+    distanceXSqrt: "",
+    distanceYSqrt: "",
+    distance: "",
+  },
 ];
 
 var canvas = document.querySelector("canvas");
@@ -46,39 +64,138 @@ ctx.fillStyle = "#fff";
 
 // find closest
 
-let positions = [];
+var closest = {
+  distance: "",
+  name: "",
+};
+var lastClosest = "";
 
-list.forEach(element => {
-    positions.push({id: element.name,posX: Math.floor(Math.abs(element.positionX - carsPositionX)), posY: Math.floor(Math.abs(element.positionY - carsPositionY))});
-});
+check = () => {
+  lastClosest = closest.$name;
+  // fill blanks
 
-let karesi = [];
+  carsX = carsPositionX + 12.5;
+  carsY = carsPositionY + 12.5;
 
-positions.forEach(poss => {
-    karesi.push({id: poss.id, kareX: poss.posX * poss.posX, kareY: poss.posY * poss.posY});
-})
+  boxs.forEach((box) => {
+    box.distanceX = Math.abs(carsX - box.positionX);
+    box.distanceY = Math.abs(carsY - box.positionY);
 
-let hipotenus = [];
+    box.distanceXSqrt = box.distanceX * box.distanceX;
+    box.distanceYSqrt = box.distanceY * box.distanceY;
 
-karesi.forEach(kare  => {
-    hipotenus.push({id: kare.id, hipo: Math.sqrt(kare.kareX + kare.kareY)});
-})
+    box.distance = Math.sqrt(box.distanceXSqrt + box.distanceYSqrt);
+  });
 
-let closest;
-
-for(let x = 0; x < hipotenus.length; x++) {
-    if(hipotenus[x].hipo == Math.min(hipotenus[0].hipo, hipotenus[1].hipo, hipotenus[2].hipo, hipotenus[3].hipo, hipotenus[4].hipo)) {
-        closest = x;
+  closest = {
+    distance: Math.min(
+      boxs[0].distance,
+      boxs[1].distance,
+      boxs[2].distance,
+      boxs[3].distance,
+      boxs[4].distance
+    ),
+    $name: "",
+  };
+  boxs.forEach((box) => {
+    if (box.distance == closest.distance) {
+      closest.$name = box.name;
     }
-}
-
-console.log(closest);
-
-for (let x = 0; x < list.length; x++){
-    ctx.fillStyle = "#999999";
-    ctx.fillRect(list[x].positionX, list[x].positionY, squareScale, squareScale);
-    ctx.textAlign = "center";
-    ctx.fillText(`${x}`, list[x].positionX, list[x].positionY);
+  });
 };
 
-ctx.strokeRect(carsPositionX, carsPositionY, 25, 25);
+check();
+
+ctx.fillStyle = "yellow";
+ctx.fillRect(carsPositionX, carsPositionY, 25, 25);
+
+drawCar = () => {
+  ctx.fillStyle = "yellow";
+  ctx.clearRect(carsOldX - 3, carsOldY - 3, 30, 30);
+  ctx.fillRect(carsPositionX, carsPositionY, 25, 25);
+};
+
+document.addEventListener("keypress", (e) => {
+  // 100 D, 115 S, 97 A, 119 W,
+  if (e.keyCode == 119) {
+    // W
+    carsOldX = carsPositionX;
+    carsOldY = carsPositionY;
+
+    carsPositionY -= 5;
+    drawCar();
+  } else if (e.keyCode == 97) {
+    // A
+    carsOldX = carsPositionX;
+    carsOldY = carsPositionY;
+
+    carsPositionX -= 5;
+    drawCar();
+  } else if (e.keyCode == 115) {
+    // S
+    carsOldX = carsPositionX;
+    carsOldY = carsPositionY;
+
+    carsPositionY += 5;
+    drawCar();
+  } else if (e.keyCode == 100) {
+    // D
+    carsOldX = carsPositionX;
+    carsOldY = carsPositionY;
+
+    carsPositionX += 5;
+    drawCar();
+  }
+
+  check();
+  draw();
+});
+
+for (let x = 0; x < boxs.length; x++) {
+  if (boxs[x].name != closest.$name) {
+    ctx.fillStyle = "#999999";
+    ctx.fillRect(
+      boxs[x].positionX,
+      boxs[x].positionY,
+      squareScale,
+      squareScale
+    );
+    ctx.textAlign = "center";
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.fillText(`${x}`, boxs[x].positionX, boxs[x].positionY);
+  } else {
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+      boxs[x].positionX,
+      boxs[x].positionY,
+      squareScale,
+      squareScale
+    );
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.fillText(`${x}`, boxs[x].positionX, boxs[x].positionY);
+  }
+}
+
+draw = () => {
+  if (lastClosest != closest.$name) {
+    ctx.fillStyle = "#999999";
+    ctx.fillRect(
+      boxs[lastClosest].positionX - 4,
+      boxs[lastClosest].positionY,
+      squareScale + 4,
+      squareScale + 4
+    );
+
+    (ctx.fillStyle = "red"),
+      ctx.fillRect(
+        boxs[closest.$name].positionX - 4,
+        boxs[closest.$name].positionY,
+        squareScale + 4,
+        squareScale + 4
+      );
+  }
+};
+
+draw();
